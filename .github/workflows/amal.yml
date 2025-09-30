@@ -1,7 +1,9 @@
-﻿name: Amal Smoke (cmd-only)
+﻿name: Amal Smoke (cmd-only + label trigger)
 
 on:
   workflow_dispatch:
+  issues:
+    types: [labeled]
 
 defaults:
   run:
@@ -9,6 +11,8 @@ defaults:
 
 jobs:
   ping:
+    # Пали се или рачно (workflow_dispatch) или кога ќе се додаде label amal:run
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'issues' && github.event.action == 'labeled' && github.event.label.name == 'amal:run')
     runs-on: self-hosted
     steps:
       - name: Echo 1
@@ -18,4 +22,4 @@ jobs:
         run: |
           echo REPO=%GITHUB_REPOSITORY%
           echo EVENT=%GITHUB_EVENT_NAME%
-          echo RUNNER_OS=%RUNNER_OS%
+          echo LABEL_NAME=${{ github.event.label.name }}
