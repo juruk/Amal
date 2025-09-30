@@ -5,11 +5,14 @@ on:
   issues:
     types: [labeled]
 
+defaults:
+  run:
+    shell: cmd
+
 jobs:
   ping:
     if: github.event_name == 'workflow_dispatch' || (github.event_name == 'issues' && github.event.action == 'labeled' && github.event.label.name == 'amal:run')
     runs-on: self-hosted
     steps:
       - name: Ping (cmd)
-        shell: cmd
         run: echo PING_OK
