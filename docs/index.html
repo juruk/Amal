@@ -1,0 +1,41 @@
+<!-- C:\Amal\docs\index.html -->
+<!doctype html>
+<html lang="mk">
+<head>
+  <meta charset="utf-8"/>
+  <title>Amal – Статус</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body { font-family: system-ui, Segoe UI, Arial; margin: 24px; }
+    .bar { width: 100%; background: #eee; height: 14px; border-radius: 7px; overflow: hidden; }
+    .fill { height: 100%; background: #2f6feb; width: 0%; transition: width .3s; }
+    pre { background: #111; color: #0f0; padding: 12px; border-radius: 8px; max-height: 40vh; overflow: auto; }
+    .pill { display:inline-block; padding:4px 8px; border-radius:999px; background:#f3f3f3; margin-right:8px; }
+  </style>
+</head>
+<body>
+  <h1>Amal – Реал-тајм статус</h1>
+  <div>
+    <span class="pill" id="phase">phase: -</span>
+    <span class="pill" id="issue">issue: -</span>
+    <span class="pill" id="iter">iter: -</span>
+    <span class="pill" id="ts">ts: -</span>
+  </div>
+  <div class="bar" style="margin:12px 0 24px;"><div class="fill" id="fill"></div></div>
+  <h3>Лог (последни 4.000 карактери)</h3>
+  <pre id="log"></pre>
+  <script>
+    async function refresh(){
+      const r = await fetch('status.json?ts='+Date.now());
+      const j = await r.json();
+      document.getElementById('phase').innerText = 'phase: ' + (j.phase||'-');
+      document.getElementById('issue').innerText = 'issue: ' + (j.issue||'-');
+      document.getElementById('iter').innerText = 'iter: ' + (j.iteration||'-');
+      document.getElementById('ts').innerText = 'ts: ' + (j.ts||'-');
+      document.getElementById('fill').style.width = ((j.progress||0) + '%');
+      document.getElementById('log').innerText = (j.last_logs||'');
+    }
+    refresh(); setInterval(refresh, 3000);
+  </script>
+</body>
+</html>

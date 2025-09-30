@@ -1,0 +1,29 @@
+﻿name: Amal Agent Runner (smoke)
+
+on:
+  workflow_dispatch:
+  issues:
+    types: [labeled]
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  smoke:
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'issues' && github.event.action == 'labeled' && github.event.label.name == 'amal:run')
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Print context
+        run: |
+          echo "Repo: ${{ github.repository }}"
+          echo "Event: ${{ github.event_name }}"
+          echo "Ref: ${{ github.ref }}"
+
+      - name: Hello from Amal
+        run: |
+          echo "Amal workflow is alive ✅"
