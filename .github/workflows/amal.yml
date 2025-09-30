@@ -1,9 +1,7 @@
-﻿name: Amal Agent Runner (smoke v2)
+﻿name: Amal Smoke (cmd-only)
 
 on:
   workflow_dispatch:
-  issues:
-    types: [labeled]
 
 defaults:
   run:
@@ -11,8 +9,13 @@ defaults:
 
 jobs:
   ping:
-    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'issues' && github.event.action == 'labeled' && github.event.label.name == 'amal:run')
     runs-on: self-hosted
     steps:
-      - name: Ping (cmd)
+      - name: Echo 1
         run: echo PING_OK
+
+      - name: Print env (cmd)
+        run: |
+          echo REPO=%GITHUB_REPOSITORY%
+          echo EVENT=%GITHUB_EVENT_NAME%
+          echo RUNNER_OS=%RUNNER_OS%
