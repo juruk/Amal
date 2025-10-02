@@ -1,5 +1,4 @@
-<!-- C:\Amal\docs\index.html -->
-<!doctype html>
+﻿<!doctype html>
 <html lang="mk">
 <head>
   <meta charset="utf-8"/>
@@ -18,22 +17,24 @@
   <div>
     <span class="pill" id="phase">phase: -</span>
     <span class="pill" id="issue">issue: -</span>
-    <span class="pill" id="iter">iter: -</span>
-    <span class="pill" id="ts">ts: -</span>
+    <span class="pill" id="title">title: -</span>
   </div>
   <div class="bar" style="margin:12px 0 24px;"><div class="fill" id="fill"></div></div>
-  <h3>Лог (последни 4.000 карактери)</h3>
+  <h3>Лог (status.json)</h3>
   <pre id="log"></pre>
   <script>
     async function refresh(){
-      const r = await fetch('status.json?ts='+Date.now());
-      const j = await r.json();
-      document.getElementById('phase').innerText = 'phase: ' + (j.phase||'-');
-      document.getElementById('issue').innerText = 'issue: ' + (j.issue||'-');
-      document.getElementById('iter').innerText = 'iter: ' + (j.iteration||'-');
-      document.getElementById('ts').innerText = 'ts: ' + (j.ts||'-');
-      document.getElementById('fill').style.width = ((j.progress||0) + '%');
-      document.getElementById('log').innerText = (j.last_logs||'');
+      try{
+        const r = await fetch('status.json?ts='+Date.now());
+        const j = await r.json();
+        document.getElementById('phase').innerText = 'phase: ' + (j.phase||'-');
+        document.getElementById('issue').innerText = 'issue: ' + (j.issue||'-');
+        document.getElementById('title').innerText = 'title: ' + (j.title||'-');
+        document.getElementById('fill').style.width = ((j.progress||0) + '%');
+        document.getElementById('log').innerText = JSON.stringify(j,null,2);
+      }catch(e){
+        document.getElementById('log').innerText = 'status.json not found yet.';
+      }
     }
     refresh(); setInterval(refresh, 3000);
   </script>

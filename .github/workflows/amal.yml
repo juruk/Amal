@@ -1,4 +1,4 @@
-﻿name: Amal Smoke (checkout + embeddable Python)
+﻿name: Amal Orchestrator (smoke)
 
 on:
   workflow_dispatch:
@@ -10,11 +10,11 @@ defaults:
     shell: cmd
 
 permissions:
-  contents: read
+  contents: write
   issues: write
 
 jobs:
-  smoke:
+  amal:
     if: github.event_name == 'workflow_dispatch' || (github.event_name == 'issues' && github.event.action == 'labeled' && github.event.label.name == 'amal:run')
     runs-on: self-hosted
     steps:
@@ -25,30 +25,38 @@ jobs:
         run: |
           mkdir tools 2>nul
           curl -L -o tools\py311.zip https://www.python.org/ftp/python/3.11.9/python-3.11.9-embed-amd64.zip
-          rem Unzip using PowerShell in Bypass mode (allowed even with execution policy restrictions)
           powershell -NoProfile -ExecutionPolicy Bypass -Command "Expand-Archive -LiteralPath 'tools\py311.zip' -DestinationPath 'tools\py311' -Force"
 
-      - name: Enable site for embeddable (optional but safe)
+      - name: Enable site for embeddable
         run: |
-          rem Add 'import site' to enable standard paths if missing
           if exist tools\py311\python311._pth (
             powershell -NoProfile -ExecutionPolicy Bypass -Command "(Get-Content 'tools\\py311\\python311._pth') -replace '^(#\s*)?import site$','import site' | Set-Content 'tools\\py311\\python311._pth' -Encoding ASCII"
             powershell -NoProfile -ExecutionPolicy Bypass -Command "if (-not (Select-String -Path 'tools\\py311\\python311._pth' -Pattern '^import site$')) { Add-Content 'tools\\py311\\python311._pth' 'import site' }"
           )
 
-      - name: Add Python to PATH for this job
-        run: |
-          echo %CD%\tools\py311>> %GITHUB_PATH%
+      - name: Add Python to PATH
+        run: echo %CD%\tools\py311>> %GITHUB_PATH%
 
-      - name: Verify Python
+      - name: Install pip (get-pip.py)
         run: |
-          python -V
-          where python
+          curl -L -o tools\get-pip.py https://bootstrap.pypa.io/get-pip.py
+          python tools\get-pip.py --disable-pip-version-check
 
-      - name: Create sample_app\app.py
+      - name: Pip install requirements
         run: |
-          if not exist sample_app mkdir sample_app
-          > sample_app\app.py echo print("Hello, Phase 8!")
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
 
-      - name: Run sample_app
-        run: python sample_app\app.py
+      - name: Run orchestrator
+        env:
+          GITHUB_EVENT_PATH: ${{ github.event_path }}
+        run: |
+          python .amal\orchestrator.py
+
+      - name: Commit docs/status.json (and any changes)
+        run: |
+          git config user.email "actions@github.com"
+          git config user.name "github-actions[bot]"
+          git add docs/status.json
+          git commit -m "Amal: update status" || echo NoChanges
+          git push
