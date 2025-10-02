@@ -1,4 +1,4 @@
-﻿name: Amal Smoke (checkout + python)
+﻿name: Amal Smoke (checkout + setup-python)
 
 on:
   workflow_dispatch:
@@ -15,17 +15,21 @@ permissions:
 
 jobs:
   smoke:
-    # Тригери: рачно или со додавање label amal:run на Issue
     if: github.event_name == 'workflow_dispatch' || (github.event_name == 'issues' && github.event.action == 'labeled' && github.event.label.name == 'amal:run')
     runs-on: self-hosted
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Show workspace
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Verify Python
         run: |
-          echo WORKSPACE=%CD%
-          dir
+          python -V
+          where python
 
       - name: Create sample_app\app.py
         run: |
