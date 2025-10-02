@@ -1,4 +1,4 @@
-﻿name: Amal Orchestrator (smoke)
+﻿name: Amal Orchestrator (Ollama)
 
 on:
   workflow_dispatch:
@@ -17,6 +17,9 @@ jobs:
   amal:
     if: github.event_name == 'workflow_dispatch' || (github.event_name == 'issues' && github.event.action == 'labeled' && github.event.label.name == 'amal:run')
     runs-on: self-hosted
+    env:
+      OLLAMA_BASE_URL: http://127.0.0.1:11434
+      AMAL_MODEL: llama3.1
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -50,6 +53,8 @@ jobs:
       - name: Run orchestrator
         env:
           GITHUB_EVENT_PATH: ${{ github.event_path }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
           python .amal\orchestrator.py
 
