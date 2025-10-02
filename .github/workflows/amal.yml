@@ -1,4 +1,4 @@
-﻿name: Amal Smoke (checkout + setup-python)
+﻿name: Amal Smoke (checkout + embeddable Python)
 
 on:
   workflow_dispatch:
@@ -21,10 +21,24 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Python 3.11
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
+      - name: Download Python 3.11 (embeddable)
+        run: |
+          mkdir tools 2>nul
+          curl -L -o tools\py311.zip https://www.python.org/ftp/python/3.11.9/python-3.11.9-embed-amd64.zip
+          rem Unzip using PowerShell in Bypass mode (allowed even with execution policy restrictions)
+          powershell -NoProfile -ExecutionPolicy Bypass -Command "Expand-Archive -LiteralPath 'tools\py311.zip' -DestinationPath 'tools\py311' -Force"
+
+      - name: Enable site for embeddable (optional but safe)
+        run: |
+          rem Add 'import site' to enable standard paths if missing
+          if exist tools\py311\python311._pth (
+            powershell -NoProfile -ExecutionPolicy Bypass -Command "(Get-Content 'tools\\py311\\python311._pth') -replace '^(#\s*)?import site$','import site' | Set-Content 'tools\\py311\\python311._pth' -Encoding ASCII"
+            powershell -NoProfile -ExecutionPolicy Bypass -Command "if (-not (Select-String -Path 'tools\\py311\\python311._pth' -Pattern '^import site$')) { Add-Content 'tools\\py311\\python311._pth' 'import site' }"
+          )
+
+      - name: Add Python to PATH for this job
+        run: |
+          echo %CD%\tools\py311>> %GITHUB_PATH%
 
       - name: Verify Python
         run: |
