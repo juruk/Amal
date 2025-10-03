@@ -58,10 +58,12 @@ jobs:
         run: |
           python .amal\orchestrator.py
 
-      - name: Commit docs/status.json (and any changes)
-        run: |
-          git config user.email "actions@github.com"
-          git config user.name "github-actions[bot]"
-          git add docs/status.json
-          git commit -m "Amal: update status" || echo NoChanges
-          git push
+     # .github/workflows/amal.yml  (замени го последниот чекор)
+- name: Commit all changes (status + generated code)
+  run: |
+    git config user.email "actions@github.com"
+    git config user.name "github-actions[bot]"
+    git add -A
+    git commit -m "Amal: update code and status" || echo "NoChanges"
+    git push
+
