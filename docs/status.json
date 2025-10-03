@@ -1,7 +1,9 @@
 {
-  "phase": "smoke-orchestrator",
-  "ts": 1759424613,
+  "phase": "done_no_accept",
+  "ts": 1759474412,
   "issue": null,
   "title": "",
-  "progress": 42
+  "progress": 100,
+  "iteration": 1,
+  "last_logs": "No patch\n\n$ python -m pip install --upgrade pip\n# exit=0, 1.33s\nRequirement already satisfied: pip in c:\\githubrunners\\amalrunner\\_work\\amal\\amal\\tools\\py311\\lib\\site-packages (25.2)\n\n\n---\n\n$ pip install -r requirements.txt\n# exit=1, 0.03s\n'pip' is not recognized as an internal or external command,\noperable program or batch file.\n"
 }
